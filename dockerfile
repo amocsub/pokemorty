@@ -1,10 +1,11 @@
 FROM python:3.9-alpine
 
-WORKDIR /usr/src/app
 
-COPY requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-EXPOSE 8080
+ENV APP_HOME /app
+WORKDIR $APP_HOME
 COPY . .
 
-CMD [ "python", "src/app.py" ]
+RUN pip install --no-cache-dir -r requirements.txt
+EXPOSE $PORT
+
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 src/app:app
