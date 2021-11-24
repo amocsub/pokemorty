@@ -39,7 +39,7 @@ def validate_flag_found(wrapped_function):
     def _wrapper(*args, **kwargs):
         challenge_flag = request.cookies.get("flag")
         if challenge_flag and challenge_flag == "ABK{I_LOVE_POKEMON}":
-            return redirect("/you_have_found_the_flag.html")
+            return redirect("/you_have_found_the_flag")
         else:
             return wrapped_function(*args, **kwargs)
     return _wrapper
@@ -95,13 +95,13 @@ def challenge():
     return render_template("challenge.html", winner=winner, looser=not(winner) and challenge_cookie is not None)
 
 @app.route("/01100110011011000110000101100111", methods=["POST"])
-@validate_flag_found
 def get_flag():
     form = flask.request.form
     if form and form.get("01100110011011000110000101100111"):
         if form.get("01100110011011000110000101100111") == "ABK{I_LOVE_POKEMON}":
-            request = redirect("/you_have_found_the_flag")
-            request.set_cookie("flag", "ABK{I_LOVE_POKEMON}")
+            response = redirect("/you_have_found_the_flag")
+            response.set_cookie("flag", "ABK{I_LOVE_POKEMON}")
+            return response
     response = redirect("/")
     response.set_cookie("status", "fail")
     return response
@@ -135,7 +135,7 @@ def authenticate():
         return response
     else:
         response = redirect("/login")
-        response.set_data("db_raw_data: " +base64.b64encode(str(result_raw).encode('ascii')))
+        response.set_data("db_raw_data: " +str(base64.b64encode(str(result_raw).encode('ascii'))))
         response.set_cookie("authenticated", "VGhpcyBpcyBub3QgbW9yZSB0aGFuIGEgZGlzdHJhY3Rpb24sIGJ1dCBpdCB3YXMgZnVuIHRvIHNlZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUhISEKCkhBSEE=")
         return response
 
@@ -150,12 +150,13 @@ def login():
         return make_response(render_template("login.html", incorrect_password=True))
 
 @app.route("/you_have_found_the_flag")
-@validate_flag_found
-@validate_challenge
-@validate_auth
 def you_have_found_the_flag():
-    response = make_response(render_template("you_have_found_the_flag.html"))
-    return response
+    challenge_flag = request.cookies.get("flag")
+    if challenge_flag and challenge_flag == "ABK{I_LOVE_POKEMON}":
+        return make_response(render_template("you_have_found_the_flag.html"))
+    else:
+        response = redirect("/")
+        return response
 
 @app.route("/")
 @validate_flag_found
