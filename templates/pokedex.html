@@ -1,36 +1,50 @@
-<!DOCTYPE>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
+<!DOCTYPE html>
 <html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    .column {
+      float: left;
+      width: 33.33%;
+      padding: 10px;
+      height: 300px;
+    }
+    
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    </style>
+</head>
+<link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
+
     <title>
-        Pokemon
+        {{pokemon_master}} Pokedex
     </title>
-    <head>
-        Here goes the head
-    </head>
+    
+        <h1>POKEDEX</h1>
+    
     <body>
         <h1>I am the pokemon master {{pokemon_master}}</h1>
         <h2>This are the {{pokemon_list|length}} I knew on my trip</h2>
-        <!DOCTYPE html>
-
-        <table  align="center"  style="border-collapse: collapse; width: 100%;">
-            <tbody>
-                {% for pokemon in pokemon_list %}
-                <tr style="width: 50%;">
-                    <td>
-                        <div style="height: 25%; width: 100%">
-                            <h2 style="font-size:3vw; text-align:center">{{pokemon[pokemon_id]}}</h2>
-                        </div>
-                        <div style="max-height:300px;height: 75%; max-width: 300px; width: 75%">
-                            <img src='data:image/jpeg;base64,{{ pokemon["pokemon_image"] }}' style="max-width:300px;width:100%;max-height:300px;height:100%">
-                        </div>
-                        <div style="height: 25%; width: 100%">
-                            <h2 style="font-size:3vw; text-align:center">{{pokemon["pokemon_name"]}}</h2>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        
+        {% for pokemon in pokemon_list %}
+            <div class="row">
+                <div class="column" style="background-color:#FFFF;">
+                    <h2 style="font-size:3vw; position:absolute">{{pokemon["pokemon_id"]}}</h2>
+                </div>
+                <div class="column" style="background-color:#FFFF;">
+                    <img src='/pokemon/{{pokemon["pokemon_id"]}}' style="max-width:300px;width:100%;max-height:300px;height:100%">
+                </div>
+                <div class="column" style="background-color:#FFFF;">
+                    <h2 style="font-size:3vw; text-align:center">{{pokemon["pokemon_name"]}}</h2>
+                </div>
+            </div>
+        {% endfor %}
     </body>
 </html>

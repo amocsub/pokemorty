@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, make_response, redirect
+from flask import Flask, render_template, request, make_response, redirect, send_file, abort
 from os import getenv
 from random import randint
 from itertools import product
 from functools import wraps
 import sqlite3
 import base64
+from io import BytesIO
 
 import flask
 
@@ -24,12 +25,11 @@ for pokemon_data in pokemons_data:
         pokemon_data = pokemon_data[:-1]
     pokemons.append(pokemon_data.split("\\\\----\\\\"))
 conn.executemany("INSERT OR IGNORE INTO pokemons (pokemon_id, pokemon_name, pokemon_image) values (?, ?, ?)", pokemons)
-conn.execute("INSERT OR IGNORE INTO pokemon_masters (master_id, username, password) values (?, ?, ?)", (130 , "RickSanchez", "IL0veMorty"))
-conn.execute("INSERT OR IGNORE INTO pokemon_masters (username, password) values ('lrutter0', '6Q4ZHCfdK'), ('hhorsburgh1', 'yLrlpgC'), ('vklageman2', 'rDXuu6jm'), ('oviegas3', '3iRj5R7Y'), ('wfleming4', 'gZ4Trd'), ('pcorrie5', 'V2ZHqoE6'), ('hwebster6', 'fsMjJxC'), ('wmacallester7', 'Qm4bOfMX'), ('dwilce8', 'pNYYtA3sVHY'), ('agirardey9', 'z2iz2V6pR0Sq'), ('tvanshina', 'SjdV20drm'), ('csollandb', 'NdPpD0rFB6'), ('drosebyc', 'yShglY'), ('rrizzardid', 'OoGDNOIVtET'), ('lalfordee', 'd7fCM9a'), ('dsmyf', 'rB8PQFd'), ('fspoerlg', 'Ocht3V8bt2YB'), ('noheagertieh', 'RwFd7gv6tD2'), ('fmatyushkini', 'Ee21yWnYF'), ('efitzgibbonj', 'JiBsiDEi'), ('lmittenk', 'wqlXZM4KBA'), ('lharmarl', 'z60ei0t'), ('agilbodym', 'ngn4MZ'), ('kposselln', 'pV4ZyXQW98z'), ('tharlowo', 'yKMTzbv5F'), ('hskeatp', '9e8D9Vrmfvno'), ('cbodegaq', 'Gh5vdxxAanu'), ('rfinlanr', 'PY5R9jvc'), ('mjacobis', 'E6qgUp'), ('kkrauzet', '0KhSltO7aZ'), ('fpertu', 'TjgO9kd5ROS'), ('gpeterkenv', 'DFjRCipchWqK'), ('oheaffeyw', 'y5puTN'), ('stoulamainx', 'bgeWUHVgCxny'), ('fminnocky', 'Dmugx25kV'), ('ttadgellz', 'QNgPqgZgjK'), ('rmcgannon10', 'ZO1pRMs7UINp'), ('gpurple11', '324lmnJ'), ('mmullen12', 'Pr5moNa'), ('brobison13', '88Ts77'), ('sdils14', 'qY0RN0UQux'), ('mroggeman15', 'yHDs9A'), ('bbartels16', '1aUx6bBdxO'), ('mcoots17', 'MkdS6WBwV'), ('ebernardoux18', '1RXG6h0'), ('zkingston19', 'DehJzcl'), ('oloftin1a', 'cUjZsJBRoGd'), ('gmeneghi1b', 'Kdr5se3g5E6'), ('jevers1c', 'zXkPLv4Hee7M'), ('yperfili1d', 'CSSL46O'), ('jmoulson1e', '9K688dAXqc'), ('zkingsnorth1f', 'wuPFDQgaM3G'), ('atrevance1g', 'pVvbaH'), ('bbeiderbecke1h', 'L4XYUY5O'), ('glille1i', '18NngBHZLh'), ('dheape1j', 'n3lwAkE1Xt'), ('dfalls1k', 'rp5lyYbZc'), ('showsin1l', 'CnlCUNy4'), ('kbundey1m', 'sEvNH1W'), ('rwale1n', '4wUpUrB'), ('asilberschatz1o', 'IPXF9CZAwaE2'), ('gmacnab1p', '0KegQhUUZMxl'), ('rcoldbath1q', 'zLZyuPDuQnes'), ('mdodding1r', 'ok2G5JgUj'), ('tsorby1s', 'qLHnndI'), ('kmully1t', 'kHaWyV'), ('pcheeney1u', 'Qj1C8uQLD2'), ('mflacknell1v', 'dRWNI3OZG'), ('csummersby1w', 'LL83a8'), ('akorpal1x', 'djlFOp7v'), ('vinkpen1y', 'IqvYldmYw2Y'), ('bstruttman1z', 'U8zC3DEiX'), ('pmilkeham20', 'Z9bIQuN'), ('gshenley21', 'n3e29zTqwrK'), ('pbrigden22', 'R6Wr7K1icP'), ('rbrownbill23', '6KCWVtdAg'), ('mturfitt24', 'K1S7aMTse2I'), ('cbaxstare25', '2aaHhL3hKd'), ('elile26', 'KcOntHW8'), ('pboom27', 'QxIbQuD'), ('ariddle28', '55186wjj'), ('kjurasz29', 'hdqkSTj0aDhA'), ('ctonn2a', '55MOpymID'), ('scommon2b', 'LPV76eWxeVff'), ('mchurm2c', 'BPecBlms'), ('mmashal2d', 'Xv29Ubp'), ('cpires2e', 'OtemlJaZ'), ('pboteman2f', 'pb4IVB2'), ('cpenk2g', '4Q7y83A'), ('spevie2h', 'JRmume'), ('bgeffinger2i', 'wRFoeWT'), ('aforst2j', 'VIZq7Lmjr'), ('ecassius2k', 'nBjfHR23L'), ('kovershott2l', 'DaYwepEy'), ('bbuckley2m', 'NpWbkBjiNk7'), ('rgilkison2n', 'VcaAZwBu97'), ('okolakowski2o', '6KzUi7'), ('sgayle2p', '9gEJ24JqGK'), ('cinchbald2q', 'hiIFc2bw'), ('emenguy2r', 'ZBuzDXK72sA'), ('rcrangle2s', 'NSXicWRNi'), ('hbetje2t', 'rlnSPCap'), ('rtroke2u', '6ywVoli'), ('ascoffins2v', '0keeX0CNJi5'), ('gcatmull2w', 'SX4Uzyyy'), ('ctitterington2x', 'QAi8YhG'), ('hboustred2y', '9TAT2JYBB'), ('lnorwell2z', 'whc3QSvC'), ('ngilding30', 'MWanKgyeN'), ('gtainton31', 's6TtShx'), ('mwhittlesea32', 'UH5WgJwE'), ('mgaughan33', 'zstFzIgd'), ('gclemencet34', 'yhIkWkVrk'), ('bmcgiff35', 'Ws4BWwYft1U'), ('zraikes36', 'ct3By6pl6gA7'), ('biwanczyk37', 'uZHeEaoB'), ('alinskill38', 'zQ4Ac34t'), ('jvarian39', 'lYw6ZS8NBMgF'), ('kconboy3a', 'KnpmQjE'), ('acarnegie3b', 'NFdETEPrN8'), ('agerretsen3c', 'saGh4BS4L'), ('esiggin3d', 'ORZAhW8QX'), ('tmicheli3e', 'p3RL0AsEq'), ('alamswood3f', 'l2hHGsz'), ('gbellefant3g', 'QXkvCbieo'), ('rleckie3h', 'vCSrtgM'), ('bpoznanski3i', 'xrddyqgNVsZc'), ('rwadhams3j', 'SLuelzncWwC'), ('dhabberjam3k', 'AAil4jZhp'), ('rpetford3l', 'rdz9JFE'), ('wbang3m', 'jMdFUN'), ('skasparski3n', 'iCA3oZ'), ('femanuele3o', 'PSoHG4e5f'), ('screeghan3p', 'd5YGQJmW4pM'), ('charce3q', 'KcREcZ6Z5S0v'), ('lwolsey3r', '8OvKjEvQ'), ('cmelpuss3s', 'Kx5Hmil'), ('kwiltshire3t', 'FQkldSpRWVt'), ('aleat3u', 'tnNsKB5qo4f9'), ('bwhitechurch3v', 'dcvRkmvtgh'), ('aadcocks3w', 'qpi9mUE'), ('lausello3x', 'zdWQAtKO'), ('kfleming3y', 'Xi0YFJij0PS'), ('fstitch3z', 'K1qthGnt8D'), ('cbroke40', 'y39Tp1ARjKjD'), ('vdaleman41', 'NKk3dP'), ('zclissett42', 'ZonQYuHjKh'), ('ltregaskis43', 'sP6uRGDRi'), ('aronisch44', '41Oq7Iq'), ('nwye45', 'eybAYXiaD3'), ('ksainz46', 'KFDpg4Ja'), ('jclaessens47', 'woXJUReBlsH'), ('vjindra48', 'VRRCdjnD'), ('abrownbridge49', 'j2Tm4RXPOAgt'), ('htinton4a', 'GgALS7jLM'), ('ffreddi4b', '6oRiiWS'), ('cclawe4c', '5FzikeHAWxFU'), ('htanti4d', 'LcmLX9G'), ('rwindrum4e', 'GCUNIxLyzzt'), ('dthreader4f', 'rviYlbJcB'), ('hcumpsty4g', 'yHad5sDHn'), ('lambrois4h', 'oDz0MTbhMI'), ('imckie4i', 'bWNT93WB'), ('rcurnnok4j', 'UnOotuXQR6'), ('rromeril4k', '7zSFauA2A4DX'), ('adignum4l', 'JUcTY0KZvJ'), ('dfasey4m', 'SCzwXHFO12'), ('meadon4n', 'W5AQaP6'), ('atomkys4o', 'w0052H6DFnKn'), ('ldurkin4p', 'oGimUuGLls'), ('jfraschetti4q', '26TDY1bkLcWQ'), ('dandrich4r', 'oiV7jn7EXCB'), ('aamey4s', 'PpSgar'), ('sjozef4t', 'IJGYaFUmXHT'), ('dcampanelli4u', 'JBQDC6Ru'), ('dcannings4v', 'xhyxFKHi'), ('partist4w', 'BiWojR7G4'), ('hstannah4x', 'uxzDjG29'), ('msarre4y', 'xqR4SMvIr'), ('bterbeck4z', 'kiY6Idz'), ('msteels50', '7yujYqzG'), ('arule51', '0Kl493A'), ('clavarack52', 'T7RzBRpn'), ('elording53', 'esU98VAmht'), ('sgiacobillo54', 'cJjsCO'), ('fwalters55', 'YbXXqJON7WG'), ('tvandenvelde56', 'XM69mQJHp'), ('hlangstone57', 'zqVoCQ'), ('kgerardin58', 'oEvG7TGTkxa2'), ('fquaif59', '0evd5M4f')")
+conn.execute("INSERT OR IGNORE INTO pokemon_masters (master_id, username, password) values (1, 'morty', 'ilovemyfamily'), (2, 'supermorty', 'yLrlpgC'), (3, 'mortytest', 'rDXuu6jm'), (4, 'oviegas3', '3iRj5R7Y'), (5, 'wfleming4', 'gZ4Trd'), (6, 'pcorrie5', 'V2ZHqoE6'), (7, 'hwebster6', 'fsMjJxC'), (8, 'wmacallester7', 'Qm4bOfMX'), (9, 'dwilce8', 'pNYYtA3sVHY'), (10, 'agirardey9', 'z2iz2V6pR0Sq'), (11, 'tvanshina', 'SjdV20drm'), (12, 'csollandb', 'NdPpD0rFB6'), (13, 'drosebyc', 'yShglY'), (14, 'rrizzardid', 'OoGDNOIVtET'), (15, 'lalfordee', 'd7fCM9a'), (16, 'dsmyf', 'rB8PQFd'), (17, 'fspoerlg', 'Ocht3V8bt2YB'), (18, 'noheagertieh', 'RwFd7gv6tD2'), (19, 'fmatyushkini', 'Ee21yWnYF'), (20, 'efitzgibbonj', 'JiBsiDEi'), (21, 'lmittenk', 'wqlXZM4KBA'), (22, 'lharmarl', 'z60ei0t'), (23, 'agilbodym', 'ngn4MZ'), (24, 'kposselln', 'pV4ZyXQW98z'), (25, 'tharlowo', 'yKMTzbv5F'), (26, 'hskeatp', '9e8D9Vrmfvno'), (27, 'cbodegaq', 'Gh5vdxxAanu'), (28, 'rfinlanr', 'PY5R9jvc'), (29, 'mjacobis', 'E6qgUp'), (30, 'kkrauzet', '0KhSltO7aZ'), (31, 'fpertu', 'TjgO9kd5ROS'), (32, 'gpeterkenv', 'DFjRCipchWqK'), (33, 'oheaffeyw', 'y5puTN'), (34, 'stoulamainx', 'bgeWUHVgCxny'), (35, 'fminnocky', 'Dmugx25kV'), (36, 'ttadgellz', 'QNgPqgZgjK'), (37, 'rmcgannon10', 'ZO1pRMs7UINp'), (38, 'gpurple11', '324lmnJ'), (39, 'mmullen12', 'Pr5moNa'), (40, 'brobison13', '88Ts77'), (41, 'sdils14', 'qY0RN0UQux'), (42, 'mroggeman15', 'yHDs9A'), (43, 'bbartels16', '1aUx6bBdxO'), (44, 'mcoots17', 'MkdS6WBwV'), (45, 'ebernardoux18', '1RXG6h0'), (46, 'zkingston19', 'DehJzcl'), (47, 'oloftin1a', 'cUjZsJBRoGd'), (48, 'gmeneghi1b', 'Kdr5se3g5E6'), (49, 'jevers1c', 'zXkPLv4Hee7M'), (50, 'yperfili1d', 'CSSL46O'), (51, 'jmoulson1e', '9K688dAXqc'), (52, 'zkingsnorth1f', 'wuPFDQgaM3G'), (53, 'atrevance1g', 'pVvbaH'), (54, 'bbeiderbecke1h', 'L4XYUY5O'), (55, 'glille1i', '18NngBHZLh'), (56, 'dheape1j', 'n3lwAkE1Xt'), (57, 'dfalls1k', 'rp5lyYbZc'), (58, 'showsin1l', 'CnlCUNy4'), (59, 'kbundey1m', 'sEvNH1W'), (60, 'rwale1n', '4wUpUrB'), (61, 'asilberschatz1o', 'IPXF9CZAwaE2'), (62, 'gmacnab1p', '0KegQhUUZMxl'), (63, 'rcoldbath1q', 'zLZyuPDuQnes'), (64, 'mdodding1r', 'ok2G5JgUj'), (65, 'tsorby1s', 'qLHnndI'), (66, 'kmully1t', 'kHaWyV'), (67, 'pcheeney1u', 'Qj1C8uQLD2'), (68, 'mflacknell1v', 'dRWNI3OZG'), (69, 'csummersby1w', 'LL83a8'), (70, 'akorpal1x', 'djlFOp7v'), (71, 'vinkpen1y', 'IqvYldmYw2Y'), (72, 'bstruttman1z', 'U8zC3DEiX'), (73, 'pmilkeham20', 'Z9bIQuN'), (74, 'gshenley21', 'n3e29zTqwrK'), (75, 'pbrigden22', 'R6Wr7K1icP'), (76, 'rbrownbill23', '6KCWVtdAg'), (77, 'mturfitt24', 'K1S7aMTse2I'), (78, 'cbaxstare25', '2aaHhL3hKd'), (79, 'elile26', 'KcOntHW8'), (80, 'pboom27', 'QxIbQuD'), (81, 'ariddle28', '55186wjj'), (82, 'kjurasz29', 'hdqkSTj0aDhA'), (83, 'ctonn2a', '55MOpymID'), (84, 'scommon2b', 'LPV76eWxeVff'), (85, 'mchurm2c', 'BPecBlms'), (86, 'mmashal2d', 'Xv29Ubp'), (87, 'cpires2e', 'OtemlJaZ'), (88, 'pboteman2f', 'pb4IVB2'), (89, 'cpenk2g', '4Q7y83A'), (90, 'spevie2h', 'JRmume'), (91, 'bgeffinger2i', 'wRFoeWT'), (92, 'aforst2j', 'VIZq7Lmjr'), (93, 'ecassius2k', 'nBjfHR23L'), (94, 'kovershott2l', 'DaYwepEy'), (95, 'bbuckley2m', 'NpWbkBjiNk7'), (96, 'rgilkison2n', 'VcaAZwBu97'), (97, 'okolakowski2o', '6KzUi7'), (98, 'sgayle2p', '9gEJ24JqGK'), (99, 'cinchbald2q', 'hiIFc2bw'), (100, 'emenguy2r', 'ZBuzDXK72sA'), (101, 'rcrangle2s', 'NSXicWRNi'), (102, 'hbetje2t', 'rlnSPCap'), (103, 'rtroke2u', '6ywVoli'), (104, 'ascoffins2v', '0keeX0CNJi5'), (105, 'TheRealMorty', 'SX4Uzyyy'), (106, 'ctitterington2x', 'QAi8YhG'), (107, 'hboustred2y', '9TAT2JYBB'), (108, 'lnorwell2z', 'whc3QSvC'), (109, 'ngilding30', 'MWanKgyeN'), (110, 'gtainton31', 's6TtShx'), (111, 'mwhittlesea32', 'UH5WgJwE'), (112, 'mgaughan33', 'zstFzIgd'), (113, 'gclemencet34', 'yhIkWkVrk'), (114, 'bmcgiff35', 'Ws4BWwYft1U'), (115, 'zraikes36', 'ct3By6pl6gA7'), (116, 'biwanczyk37', 'uZHeEaoB'), (117, 'alinskill38', 'zQ4Ac34t'), (118, 'jvarian39', 'lYw6ZS8NBMgF'), (119, 'kconboy3a', 'KnpmQjE'), (120, 'acarnegie3b', 'NFdETEPrN8'), (121, 'agerretsen3c', 'saGh4BS4L'), (122, 'esiggin3d', 'ORZAhW8QX'), (123, 'tmicheli3e', 'p3RL0AsEq'), (124, 'alamswood3f', 'l2hHGsz'), (125, 'gbellefant3g', 'QXkvCbieo'), (126, 'rleckie3h', 'vCSrtgM'), (127, 'bpoznanski3i', 'xrddyqgNVsZc'), (128, 'rwadhams3j', 'SLuelzncWwC'), (129, 'dhabberjam3k', 'AAil4jZhp'), (130, 'RickSanchez', 'IL0veMorty'), (131, 'wbang3m', 'jMdFUN'), (132, 'skasparski3n', 'iCA3oZ'), (133, 'femanuele3o', 'PSoHG4e5f'), (134, 'Beth11', 'd5YGQJmW4pM'), (135, 'charce3q', 'KcREcZ6Z5S0v'), (136, 'lwolsey3r', '8OvKjEvQ'), (137, 'cmelpuss3s', 'Kx5Hmil'), (138, 'kwiltshire3t', 'FQkldSpRWVt'), (139, 'aleat3u', 'tnNsKB5qo4f9'), (140, 'bwhitechurch3v', 'dcvRkmvtgh'), (141, 'aadcocks3w', 'qpi9mUE'), (142, 'lausello3x', 'zdWQAtKO'), (143, 'JerrySmith', 'Xi0YFJij0PS'), (144, 'fstitch3z', 'K1qthGnt8D'), (145, 'cbroke40', 'y39Tp1ARjKjD'), (146, 'vdaleman41', 'NKk3dP'), (147, 'zclissett42', 'ZonQYuHjKh'), (148, 'ltregaskis43', 'sP6uRGDRi'), (149, 'aronisch44', '41Oq7Iq'), (150, 'nwye45', 'eybAYXiaD3'), (151, 'ksainz46', 'KFDpg4Ja'), (152, 'jclaessens47', 'woXJUReBlsH'), (153, 'vjindra48', 'VRRCdjnD'), (154, 'abrownbridge49', 'j2Tm4RXPOAgt'), (155, 'htinton4a', 'GgALS7jLM'), (156, 'ffreddi4b', '6oRiiWS'), (157, 'cclawe4c', '5FzikeHAWxFU'), (158, 'htanti4d', 'LcmLX9G'), (159, 'rwindrum4e', 'GCUNIxLyzzt'), (160, 'dthreader4f', 'rviYlbJcB'), (161, 'hcumpsty4g', 'yHad5sDHn'), (162, 'lambrois4h', 'oDz0MTbhMI'), (163, 'imckie4i', 'bWNT93WB'), (164, 'rcurnnok4j', 'UnOotuXQR6'), (165, 'rromeril4k', '7zSFauA2A4DX'), (166, 'adignum4l', 'JUcTY0KZvJ'), (167, 'dfasey4m', 'SCzwXHFO12'), (168, 'meadon4n', 'W5AQaP6'), (169, 'atomkys4o', 'w0052H6DFnKn'), (170, 'ldurkin4p', 'oGimUuGLls'), (171, 'jfraschetti4q', '26TDY1bkLcWQ'), (172, 'dandrich4r', 'oiV7jn7EXCB'), (173, 'aamey4s', 'PpSgar'), (174, 'sjozef4t', 'IJGYaFUmXHT'), (175, 'dcampanelli4u', 'JBQDC6Ru'), (176, 'dcannings4v', 'xhyxFKHi'), (177, 'partist4w', 'BiWojR7G4'), (178, 'hstannah4x', 'uxzDjG29'), (179, 'msarre4y', 'xqR4SMvIr'), (180, 'bterbeck4z', 'kiY6Idz'), (181, 'msteels50', '7yujYqzG'), (182, 'arule51', '0Kl493A'), (183, 'clavarack52', 'T7RzBRpn'), (184, 'elording53', 'esU98VAmht'), (185, 'sgiacobillo54', 'cJjsCO'), (186, 'fwalters55', 'YbXXqJON7WG'), (187, 'tvandenvelde56', 'XM69mQJHp'), (188, 'hlangstone57', 'zqVoCQ'), (189, 'kgerardin58', 'oEvG7TGTkxa2'), (190, 'fquaif59', '0evd5M4f')")
 if conn.execute("SELECT COUNT(*) FROM pokemons_discovered").fetchone()[0] == 0:
-    pokemons_discovered = [item for sublist in list(product([trainer], list(range(randint(1,50), randint(51,129), 8))) for trainer in list(range(1, 129, 1))) for item in sublist]
-    others = list(product([130], range(1,152,1)))
-    conn.executemany("INSERT OR IGNORE INTO pokemons_discovered (master_id, pokemon_id) values (?, ?)", pokemons_discovered + others)
+    other_trainers_discovered = [item for sublist in list(product([trainer], list(range(randint(1,50), randint(51,129), 8))) for trainer in list(range(1, 129, 1))) for item in sublist]
+    rick_sanchez_discovered = list(product([130], range(1,152,1)))
+    conn.executemany("INSERT OR IGNORE INTO pokemons_discovered (master_id, pokemon_id) values (?, ?)", other_trainers_discovered + rick_sanchez_discovered)
 conn.commit()
 conn.close()
 
@@ -68,6 +68,19 @@ def validate_challenge(wrapped_function):
             return redirect("/challenge")
     return _wrapper
 
+def validate_pokemon_owned(wrapped_function):
+    @wraps(wrapped_function)
+    def _wrapper(*args, **kwargs):
+        master_id_cookie = request.cookies.get("master_id")
+        if master_id_cookie:
+            conn = sqlite3.connect('database.db')
+            result = conn.execute("SELECT pokemon_id FROM pokemons_discovered WHERE master_id = %s" % master_id_cookie)
+            pokemons_discovered = list(map(lambda p: str(p[0]) ,result.fetchall()))
+            if kwargs["pokemon_id"] in pokemons_discovered:
+                return wrapped_function(*args, **kwargs)
+        abort(404)
+    return _wrapper
+
 
 def check_authentication_successfully(form):
     try:
@@ -82,6 +95,9 @@ def check_authentication_successfully(form):
             if password_data and password_data.get("password") == password:
                 return True, result_raw
             else:
+                for elem in result_raw:
+                    if "password" in elem and elem.get("master_id", 1) != 1:
+                        elem["password"] = "####SENSITIVE-DATA####"
                 return False, result_raw
         return False, []
     except:
@@ -169,8 +185,24 @@ def index():
 @app.errorhandler(500)
 @validate_flag_found
 def error(error):
-    response = make_response(render_template("404.html"))
+    response = make_response(render_template("404.html")), 404
     return response
+
+@app.route("/pokemon/<pokemon_id>")
+@validate_flag_found
+@validate_challenge
+@validate_auth
+@validate_pokemon_owned
+def pokemon(pokemon_id : int = 0):
+    conn = sqlite3.connect('database.db')
+    result = conn.execute("SELECT pokemon_image, pokemon_name FROM pokemons WHERE pokemon_id = %s" % pokemon_id)
+    data = result.fetchone()
+    if data:
+        return send_file(   BytesIO(base64.b64decode(data[0].encode("ascii"))),
+                            mimetype="image/gif",
+                            download_name=data[1]+".jpg")
+    else:
+        abort(404)
 
 @app.route("/pokedex")
 @validate_flag_found
