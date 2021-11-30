@@ -35,7 +35,7 @@ def init_db():
     conn.close()
 
 app = Flask(__name__)
-
+init_db()
 
 # -------------------------- #
 #     WRAPPED VALIDATORS
