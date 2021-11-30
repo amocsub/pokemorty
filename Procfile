@@ -1,1 +1,1 @@
-web: gunicorn -b :$PORT 'web:create_app()'
+web: gunicorn -b :$PORT web:app
