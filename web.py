@@ -13,7 +13,7 @@ from io import BytesIO
 # -------------------------- #
 def init_db():
     if path.exists("database.db"):
-        remove("database.db")
+        open('database.db', 'w').close()
     conn = sqlite3.connect('database.db')
     conn.execute('CREATE TABLE IF NOT EXISTS pokemon_masters (master_id INTEGER PRIMARY KEY ASC, username TEXT, password TEXT)')
     conn.execute('CREATE TABLE IF NOT EXISTS pokemons (pokemon_id INTEGER PRIMARY KEY, pokemon_name TEXT, pokemon_image TEXT)')
@@ -35,7 +35,7 @@ def init_db():
     conn.close()
 
 app = Flask(__name__)
-init_db()
+
 
 # -------------------------- #
 #     WRAPPED VALIDATORS
