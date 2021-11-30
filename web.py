@@ -8,8 +8,6 @@ import sqlite3
 import base64
 from io import BytesIO
 
-app = Flask(__name__)
-
 # -------------------------- #
 #       INITIALIZE DB
 # -------------------------- #
@@ -35,6 +33,169 @@ def init_db():
         conn.executemany("INSERT OR IGNORE INTO pokemons_discovered (master_id, pokemon_id) values (?, ?)", other_trainers_discovered + rick_sanchez_discovered)
     conn.commit()
     conn.close()
+
+# -------------------------- #
+#         CREATE APP
+# -------------------------- #
+def create_app():
+    init_db()
+    app = Flask(__name__)
+
+    # -------------------------- #
+    #         ENDPOINTS
+    # -------------------------- #
+
+    @app.route("/challenge")
+    @validate_flag_found
+    def challenge():
+        try:
+            challenge_cookie = request.cookies.get("challenge")
+            winner = challenge_cookie == "YEAH"
+            return render_template("challenge.html", winner=winner, looser=not(winner) and challenge_cookie is not None)
+        except:
+            abort(404)
+
+    @app.route("/01100110011011000110000101100111", methods=["POST"])
+    def get_flag():
+        try:
+            form = request.form
+            if form and form.get("01100110011011000110000101100111"):
+                if form.get("01100110011011000110000101100111") == "ABK{I_LOVE_POKEMON}":
+                    response = redirect("/you_have_found_the_flag")
+                    response.set_cookie("flag", "ABK{I_LOVE_POKEMON}")
+                    return response
+            response = redirect("/")
+            response.set_cookie("status", "fail")
+            return response
+        except:
+            abort(404)
+
+    @app.route("/challenge_validation", methods=["POST"])
+    @validate_flag_found
+    def challenge_validation():
+        try:
+            form = request.form
+            if form and form.get("passcode"):
+                if str(form["passcode"]).upper() == "11CK0001":
+                    response = redirect("/login")
+                    response.set_cookie("challenge", "YEAH")
+                    return response
+            response = redirect("/challenge")
+            response.set_cookie("challenge", "LOOSER")
+            return response
+        except:
+            abort(404)
+
+    @app.route("/authenticate", methods=["POST"])
+    @validate_flag_found
+    def authenticate():
+        try:
+            form = request.form
+            if not form:
+                return redirect("/login.html")
+            valid_user, result_raw = validate_authentication_form(form)
+            if valid_user:
+                master_data = dict(result_raw[0])
+                response = redirect("/pokedex")
+                response.set_cookie("authenticated", "NOW_WE_ARE_TALKING")
+                response.set_cookie("master_id", str(master_data["master_id"]))
+                response.set_cookie("username", form.get("username"))
+                return response
+            else:
+                response = redirect("/login")
+                response.set_data("db_raw_data: " +str(base64.b64encode(str(result_raw).encode('ascii'))))
+                response.set_cookie("authenticated", "VGhpcyBpcyBub3QgbW9yZSB0aGFuIGEgZGlzdHJhY3Rpb24sIGJ1dCBpdCB3YXMgZnVuIHRvIHNlZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUhISEKCkhBSEE=")
+                return response
+        except:
+            abort(404)
+
+    @app.route("/login")
+    @validate_flag_found
+    @validate_challenge
+    def login():
+        try:
+            authenticated_cookie = request.cookies.get("authenticated")
+            if not authenticated_cookie or authenticated_cookie == "NOW_WE_ARE_TALKING":
+                return make_response(render_template("login.html", incorrect_password=False))
+            else:
+                return make_response(render_template("login.html", incorrect_password=True))
+        except:
+            abort(404)
+
+    @app.route("/you_have_found_the_flag")
+    def you_have_found_the_flag():
+        try:
+            challenge_flag = request.cookies.get("flag")
+            if challenge_flag and challenge_flag == "ABK{I_LOVE_POKEMON}":
+                return make_response(render_template("you_have_found_the_flag.html"))
+            else:
+                response = redirect("/")
+                return response
+        except:
+            abort(404)
+
+    @app.route("/")
+    @validate_flag_found
+    def index():
+        try:
+            response = make_response(render_template("index.html", fail=request.cookies.get("status") == "fail"))
+            return response
+        except:
+            abort(404)
+
+    @app.errorhandler(404)
+    @app.errorhandler(405)
+    @app.errorhandler(500)
+    @validate_flag_found
+    def error(error):
+        response = make_response(render_template("404.html")), 404
+        return response
+
+    @app.route("/pokemon/<pokemon_id>")
+    @validate_flag_found
+    @validate_challenge
+    @validate_authentication_cookie
+    @validate_pokemon_owned
+    def pokemon(pokemon_id : int = 0):
+        try:
+            conn = sqlite3.connect('database.db')
+            result = conn.execute("SELECT pokemon_image, pokemon_name FROM pokemons WHERE pokemon_id = %s" % pokemon_id) # IDOR
+            data = result.fetchone()
+            if data:
+                return send_file(   BytesIO(base64.b64decode(data[0].encode("ascii"))),
+                                    mimetype="image/gif",
+                                    download_name=data[1]+".jpg")
+            else:
+                abort(404)
+        except:
+            abort(404)
+
+    @app.route("/pokedex")
+    @validate_flag_found
+    @validate_challenge
+    @validate_authentication_cookie
+    def pokedex():
+        try:
+            master_id = request.cookies.get("master_id")
+            username = request.cookies.get("username")
+            conn = sqlite3.connect('database.db')
+            conn.row_factory = sqlite3.Row
+            result = conn.execute("SELECT P.* FROM pokemons AS P LEFT JOIN pokemons_discovered PD ON P.pokemon_id = PD.pokemon_id where PD.master_id = %s" % master_id) # IDOR
+            pokemon_list = list(map(lambda p: dict(p), result.fetchall()))
+            response = make_response(render_template("pokedex.html", pokemon_master=username, pokemon_list=pokemon_list))
+            return response
+        except:
+            abort(404)
+
+    @app.route("/restore_database")
+    def restore_database():
+        try:        
+            init_db()
+            return "Success"
+        except Exception as e:
+            return str(e)
+
+    return app
 
 # -------------------------- #
 #     WRAPPED VALIDATORS
@@ -110,164 +271,6 @@ def validate_authentication_form(form):
         return False, []
     except:
         abort(404)
-
-# -------------------------- #
-#         ENDPOINTS
-# -------------------------- #
-
-@app.route("/challenge")
-@validate_flag_found
-def challenge():
-    try:
-        challenge_cookie = request.cookies.get("challenge")
-        winner = challenge_cookie == "YEAH"
-        return render_template("challenge.html", winner=winner, looser=not(winner) and challenge_cookie is not None)
-    except:
-        abort(404)
-
-@app.route("/01100110011011000110000101100111", methods=["POST"])
-def get_flag():
-    try:
-        form = request.form
-        if form and form.get("01100110011011000110000101100111"):
-            if form.get("01100110011011000110000101100111") == "ABK{I_LOVE_POKEMON}":
-                response = redirect("/you_have_found_the_flag")
-                response.set_cookie("flag", "ABK{I_LOVE_POKEMON}")
-                return response
-        response = redirect("/")
-        response.set_cookie("status", "fail")
-        return response
-    except:
-        abort(404)
-
-@app.route("/challenge_validation", methods=["POST"])
-@validate_flag_found
-def challenge_validation():
-    try:
-        form = request.form
-        if form and form.get("passcode"):
-            if str(form["passcode"]).upper() == "11CK0001":
-                response = redirect("/login")
-                response.set_cookie("challenge", "YEAH")
-                return response
-        response = redirect("/challenge")
-        response.set_cookie("challenge", "LOOSER")
-        return response
-    except:
-        abort(404)
-
-@app.route("/authenticate", methods=["POST"])
-@validate_flag_found
-def authenticate():
-    try:
-        form = request.form
-        if not form:
-            return redirect("/login.html")
-        valid_user, result_raw = validate_authentication_form(form)
-        if valid_user:
-            master_data = dict(result_raw[0])
-            response = redirect("/pokedex")
-            response.set_cookie("authenticated", "NOW_WE_ARE_TALKING")
-            response.set_cookie("master_id", str(master_data["master_id"]))
-            response.set_cookie("username", form.get("username"))
-            return response
-        else:
-            response = redirect("/login")
-            response.set_data("db_raw_data: " +str(base64.b64encode(str(result_raw).encode('ascii'))))
-            response.set_cookie("authenticated", "VGhpcyBpcyBub3QgbW9yZSB0aGFuIGEgZGlzdHJhY3Rpb24sIGJ1dCBpdCB3YXMgZnVuIHRvIHNlZSB5b3Ugd2FzdGluZyB5b3VyIHRpbWUhISEKCkhBSEE=")
-            return response
-    except:
-        abort(404)
-
-@app.route("/login")
-@validate_flag_found
-@validate_challenge
-def login():
-    try:
-        authenticated_cookie = request.cookies.get("authenticated")
-        if not authenticated_cookie or authenticated_cookie == "NOW_WE_ARE_TALKING":
-            return make_response(render_template("login.html", incorrect_password=False))
-        else:
-            return make_response(render_template("login.html", incorrect_password=True))
-    except:
-        abort(404)
-
-@app.route("/you_have_found_the_flag")
-def you_have_found_the_flag():
-    try:
-        challenge_flag = request.cookies.get("flag")
-        if challenge_flag and challenge_flag == "ABK{I_LOVE_POKEMON}":
-            return make_response(render_template("you_have_found_the_flag.html"))
-        else:
-            response = redirect("/")
-            return response
-    except:
-        abort(404)
-
-@app.route("/")
-@validate_flag_found
-def index():
-    try:
-        response = make_response(render_template("index.html", fail=request.cookies.get("status") == "fail"))
-        return response
-    except:
-        abort(404)
-
-@app.errorhandler(404)
-@app.errorhandler(405)
-@app.errorhandler(500)
-@validate_flag_found
-def error(error):
-    response = make_response(render_template("404.html")), 404
-    return response
-
-@app.route("/pokemon/<pokemon_id>")
-@validate_flag_found
-@validate_challenge
-@validate_authentication_cookie
-@validate_pokemon_owned
-def pokemon(pokemon_id : int = 0):
-    try:
-        conn = sqlite3.connect('database.db')
-        result = conn.execute("SELECT pokemon_image, pokemon_name FROM pokemons WHERE pokemon_id = %s" % pokemon_id) # IDOR
-        data = result.fetchone()
-        if data:
-            return send_file(   BytesIO(base64.b64decode(data[0].encode("ascii"))),
-                                mimetype="image/gif",
-                                download_name=data[1]+".jpg")
-        else:
-            abort(404)
-    except:
-        abort(404)
-
-@app.route("/pokedex")
-@validate_flag_found
-@validate_challenge
-@validate_authentication_cookie
-def pokedex():
-    try:
-        master_id = request.cookies.get("master_id")
-        username = request.cookies.get("username")
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        result = conn.execute("SELECT P.* FROM pokemons AS P LEFT JOIN pokemons_discovered PD ON P.pokemon_id = PD.pokemon_id where PD.master_id = %s" % master_id) # IDOR
-        pokemon_list = list(map(lambda p: dict(p), result.fetchall()))
-        response = make_response(render_template("pokedex.html", pokemon_master=username, pokemon_list=pokemon_list))
-        return response
-    except:
-        abort(404)
-
-@app.route("/restore_database")
-def restore_database():
-    try:        
-        init_db()
-        return "Success"
-    except Exception as e:
-        return str(e)
-
-def create_app():
-    init_db()
-    return app
 
 if __name__ == "__main__":
     create_app().run(host="0.0.0.0", port=getenv("PORT", 8080))
