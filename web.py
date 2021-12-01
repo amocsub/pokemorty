@@ -41,14 +41,9 @@ def init_db():
     conn.commit()
     conn.close()
 
-# -------------------------- #
-#        CREATE APP
-# -------------------------- #
 
-
-def create_app():
-    init_db()
-    return Flask(__name__)
+init_db()
+app = Flask(__name__)
 
 # -------------------------- #
 #     WRAPPED VALIDATORS
@@ -132,12 +127,6 @@ def validate_authentication_form(form):
         return False, []
     except:
         abort(404)
-
-
-# -------------------------- #
-#         ENDPOINTS
-# -------------------------- #
-app = create_app()
 
 
 @app.route("/challenge")
@@ -308,4 +297,4 @@ def restore_database():
 
 
 if __name__ == "__main__":
-    create_app().run(host="0.0.0.0", port=getenv("PORT", 8080))
+    app.run(host="0.0.0.0", port=getenv("PORT", 8080))
