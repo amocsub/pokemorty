@@ -1,30 +1,37 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body, html {
-  height: 100%;
-  margin: 0;
-}
+  <title>
+    Morty's Pokedex CTF
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+    }
 
-.bg {
-  /* The image used */
-  background-image: url("{{url_for('static', filename='flag_found.gif')}}");
+    .bg {
+      /* The image used */
+      background-image: url("{{url_for('static', filename='flag_found.gif')}}");
 
-  /* Full height */
-  height: 100%; 
+      /* Full height */
+      height: 100%;
 
-  /* Center and scale the image nicely */
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-</style>
+      /* Center and scale the image nicely */
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  </style>
 </head>
+
 <body>
-<p>You have you_have_found_the_flag!!!</p>
-<!-- I HATE TO DO FRONTEND -->
-<div class="bg"></div>
+  <p>You have you_have_found_the_flag!!!</p>
+  <!-- I HATE TO DO FRONTEND -->
+  <div class="bg"></div>
 </body>
+
 </html>

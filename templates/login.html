@@ -1,42 +1,46 @@
 <!DOCTYPE html>
 <html>
-    <title>
-        Super Secure Login
-    </title>
-    <head>
-        <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
-    </head>
-    <body>
-        <img src="https://c.tenor.com/uwBbo-DFqvwAAAAC/rick-and-morty-dancing.gif" style="max-width:300px;width:100%;max-height:300px;height:100%">
-        <br>
-        <p>Hello I'm morty and this is my college project for Mr.Goldenfold class of computer Science.</p>
-        <br>
-        <p>Im trying to emulate my own pokedex because I love pokemon.</p>
-        <br>
-        <p>I hope my grandpa dont see this if not he will try to mess it up just to annoy me</p>
-        <br>
-        <p>Since security it's really important to me I had read a lot about how to make a safe site</p>
-        <br>
-        <p>This site needs authentication to access your pokedex</p>
-        <br>
-        <form action="/authenticate" method="POST">
-            <br>
-            Username: <input type="text" name="username">
-            <br>
-            Password: <input type="password" name="password">
-            <br>
-            <input type="submit" value="Login">
-            <br>
-        </form>
-        
-        {% if incorrect_password %}
-        <p>Seriously Rick??? Is it you right??? I will delete all the things if you keep with it...</p>
-        {% endif %}
+<title>
+    Morty's Pokedex CTF
+</title>
 
-    </body>
-    
-    <!-- This is something Morty wont ever find, dont wast you time and try to access the system and bring me back the code
+<head>
+    <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
+</head>
+
+<body>
+    <img src="https://c.tenor.com/uwBbo-DFqvwAAAAC/rick-and-morty-dancing.gif"
+        style="max-width:300px;width:100%;max-height:300px;height:100%">
+    <br>
+    <p>Hello I'm morty and this is my college project for Mr.Goldenfold class of computer Science.</p>
+    <br>
+    <p>Im trying to emulate my own pokedex because I love pokemon.</p>
+    <br>
+    <p>I hope my grandpa dont see this if not he will try to mess it up just to annoy me</p>
+    <br>
+    <p>Since security it's really important to me I had read a lot about how to make a safe site</p>
+    <br>
+    <p>This site needs authentication to access your pokedex</p>
+    <br>
+    <form action="/authenticate" method="POST">
+        <br>
+        Username: <input type="text" name="username">
+        <br>
+        Password: <input type="password" name="password">
+        <br>
+        <input type="submit" value="Login">
+        <br>
+    </form>
+
+    {% if incorrect_password %}
+    <p>Seriously Rick??? Is it you right??? I will delete all the things if you keep with it...</p>
+    {% endif %}
+
+</body>
+
+<!-- This is something Morty wont ever find, dont wast you time and try to access the system and bring me back the code
     I dont remember where I leave it because I was busy just...... Saving the world...  Just as we are doing right now...
     Perhaps this hint will help you in the future: <スドラャギ>
     -->
+
 </html>
