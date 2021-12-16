@@ -12,10 +12,10 @@
 <body>
     <img src="{{url_for('static', filename='captcha.jpg')}}" />
     <br>
-    <p>I've to check that you are not one of those dumbass from the Council of Ricks again, please enter the last 8
-        chars that are showed in the image</p>
+    <p>I have to check that you are not one of those dumbass from the Council of Ricks again, please enter the last 8
+        chars that are shown in the image.</p>
     <br>
-    <p>Perhaps Morty f... it up again ¡Burp!, We have to do somethig with this kid</p>
+    <p>Perhaps Morty f...d it up again ¡Burp!, We have to do somethig with this kid...</p>
     <br>
     <form action="/challenge_validation" method="POST">
         <input type="text" name="passcode">
@@ -24,13 +24,13 @@
     </form>
 
     {% if looser %}
-    <p>Im starting to think you are a impostor... Come on... bring it on one more time</p>
+    <p>I'm starting to think you are a impostor... Come on... bring it on one more time</p>
     {% endif %}
     {% if winner %}
-    <p>You 've allready done this, go to the next thing</p>
+    <p>You've already done this, go to the next thing.</p>
     <button onclick="window.location.href='login'">Go to Login</button>
     {% endif %}
-    <!-- Im RickSanchez from dimension C-130, Im in a super important mission and need your help, I'ts very important that you help me -->
+    <!-- I'm RickSanchez from dimension C-130, I'm in a super important mission and need your help, It's very important that you help me -->
 </body>
 
 </html>
