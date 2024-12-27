@@ -10,7 +10,7 @@ The site was made by Morty with Rick's help but he was not on a good day, so it 
 
 With nothing more to be sayed, hurry up and help Rick ASAP!!!
 
-## [Go to the challenge](https://pokemorty.herokuapp.com/ "pokemorty")
+## [Go to the challenge](https://pokemorty.fly.dev/ "pokemorty")
 
 ##### Since the site is hosted in Heroku free tier it might take a while to spin up
 

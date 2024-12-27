@@ -1,7 +1,5 @@
-Dockerfile
-README.md
-*.pyc
-*.pyo
-*.pyd
-__pycache__
-.pytest_cache
+fly.toml
+.git/
+__pycache__/
+.envrc
+.venv/

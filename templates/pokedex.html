@@ -21,8 +21,18 @@
             clear: both;
         }
     </style>
+    <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
 </head>
-<link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E5X6H6190C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-E5X6H6190C');
+</script>
+
 
 <title>
     Morty's Pokedex CTF
@@ -48,6 +58,7 @@
         </div>
     </div>
     {% endfor %}
+    <!-- I'm RickSanchez from dimension C-130 once again, try to access my pokedex and see my precious pokemon. What we need is there, hurry ! -->
 </body>
 
 </html>

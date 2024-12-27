@@ -6,6 +6,7 @@
     Morty's Pokedex CTF
   </title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
   <style>
     body,
     html {
@@ -27,7 +28,16 @@
     }
   </style>
 </head>
+</head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E5X6H6190C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-E5X6H6190C');
+</script>
 <body>
   <p>You have you_have_found_the_flag!!!</p>
   <!-- I HATE TO DO FRONTEND -->

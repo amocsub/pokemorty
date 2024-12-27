@@ -8,14 +8,21 @@
     </title>
     <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
 </head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-E5X6H6190C"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
+  gtag('config', 'G-E5X6H6190C');
+</script>
 <body>
     <img src="{{url_for('static', filename='captcha.jpg')}}" />
     <br>
-    <p>I have to check that you are not one of those dumbass from the Council of Ricks again, please enter the last 8
-        chars that are shown in the image.</p>
+    <p>I have to check that you are not one of those fake Ricks from the Council of ricks again, please enter the code of the car plate that is shown in the image.</p>
     <br>
-    <p>Perhaps Morty f...d it up again ¡Burp!, We have to do somethig with this kid...</p>
+    <p>Perhaps Morty broke it again ¡Burp!, We have to do somethig with this kid...</p>
     <br>
     <form action="/challenge_validation" method="POST">
         <input type="text" name="passcode">
@@ -30,7 +37,7 @@
     <p>You've already done this, go to the next thing.</p>
     <button onclick="window.location.href='login'">Go to Login</button>
     {% endif %}
-    <!-- I'm RickSanchez from dimension C-130, I'm in a super important mission and need your help, It's very important that you help me -->
+    <!-- I'm RickSanchez from dimension C-130, remember Nº of the dimension I came from for further challenges, all the other ricks want to kill me. I'm in a super important mission and need your help, It's very important that you help me -->
 </body>
 
 </html>
