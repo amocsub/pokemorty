@@ -39,8 +39,18 @@
   gtag('config', 'G-E5X6H6190C');
 </script>
 <body>
-  <p>You have you_have_found_the_flag!!!</p>
-  <!-- I HATE TO DO FRONTEND -->
+  <p id="flagMessage"></p>
+  <script>
+      function updateFlagMessage() {
+          const nickname = getCookie("nickname");
+          if (nickname != null && nickname != "") {
+              document.getElementById("flagMessage").innerText = `Congrats ${nickname}, you have found the flag!!!`;
+          } else {
+              document.getElementById("flagMessage").innerText = "Congrats, you have found the flag!!!";
+          }
+      }
+      updateFlagMessage();
+  </script>
   <div class="bg"></div>
 </body>
 

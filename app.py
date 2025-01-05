@@ -221,7 +221,7 @@ def you_have_found_the_flag():
         challenge_flag = request.cookies.get("flag")
         if challenge_flag and challenge_flag == "FLAG{I_LOVE_POKEMON}":
             try:
-                get("https://api.telegram.org/bot1665736308:AAENBtwYcbevus9k-sJfJtBwpxHXXlLmcHI/sendMessage?chat_id=-1001196751999&text="+request.cookies.get("username")+" won the challenge!")
+                get("https://api.telegram.org/bot1665736308:AAENBtwYcbevus9k-sJfJtBwpxHXXlLmcHI/sendMessage?chat_id=-1001196751999&text="+request.cookies.get("nickname","Unknown")+" won the challenge!")
             except:
                 pass
             return make_response(render_template("you_have_found_the_flag.html"))
