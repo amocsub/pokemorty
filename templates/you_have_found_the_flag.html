@@ -28,7 +28,6 @@
     }
   </style>
 </head>
-</head>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5X6H6190C"></script>
 <script>
@@ -38,9 +37,23 @@
 
   gtag('config', 'G-E5X6H6190C');
 </script>
+
 <body>
-  <p id="flagMessage"></p>
+  <h1 id="flagMessage"></h1>
+  <div class="bg"></div>
+
   <script>
+      function getCookie(name) {
+          let cookieArr = document.cookie.split(";");
+          for (let i = 0; i < cookieArr.length; i++) {
+              let cookiePair = cookieArr[i].split("=");
+              if (name == cookiePair[0].trim()) {
+                  return decodeURIComponent(cookiePair[1]);
+              }
+          }
+          return null;
+      }
+
       function updateFlagMessage() {
           const nickname = getCookie("nickname");
           if (nickname != null && nickname != "") {
@@ -51,7 +64,6 @@
       }
       updateFlagMessage();
   </script>
-  <div class="bg"></div>
 </body>
 
 </html>
