@@ -27,26 +27,46 @@
 </pre>
 
 <pre>
-    ███    ███ ███████ ██████  ██████  ██    ██                            
-    ████  ████ ██      ██   ██ ██   ██  ██  ██                             
-    ██ ████ ██ █████   ██████  ██████    ████                              
-    ██  ██  ██ ██      ██   ██ ██   ██    ██                               
-    ██      ██ ███████ ██   ██ ██   ██    ██                               
-                                                                           
-                                                                           
-     ██████ ██   ██ ██████  ██ ███████ ████████ ███    ███  █████  ███████ 
-    ██      ██   ██ ██   ██ ██ ██         ██    ████  ████ ██   ██ ██      
-    ██      ███████ ██████  ██ ███████    ██    ██ ████ ██ ███████ ███████ 
-    ██      ██   ██ ██   ██ ██      ██    ██    ██  ██  ██ ██   ██      ██ 
-     ██████ ██   ██ ██   ██ ██ ███████    ██    ██      ██ ██   ██ ███████ 
-                                                                           
-                                                                           
-    ███    ███ ███████ ██     ██ ███████                                   
-    ████  ████ ██      ██     ██ ██                                        
-    ██ ████ ██ █████   ██  █  ██ ███████                                   
-    ██  ██  ██ ██      ██ ███ ██      ██                                   
-    ██      ██ ███████  ███ ███  ███████                                           
+    ██╗  ██╗ █████╗ ██████╗ ██████╗ ██╗   ██╗    ██████╗  ██████╗ ██████╗ ███████╗  ██╗
+    ██║  ██║██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝    ╚════██╗██╔═████╗╚════██╗██╔════╝  ██║
+    ███████║███████║██████╔╝██████╔╝ ╚████╔╝      █████╔╝██║██╔██║ █████╔╝███████╗  ██║
+    ██╔══██║██╔══██║██╔═══╝ ██╔═══╝   ╚██╔╝      ██╔═══╝ ████╔╝██║██╔═══╝ ╚════██║  ██║
+    ██║  ██║██║  ██║██║     ██║        ██║       ███████╗╚██████╔╝███████╗███████║  ██║
+    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝        ╚═╝       ╚══════╝ ╚═════╝ ╚══════╝╚══════╝  ╚═╝
+                                                                                    ██╗
+                                                                                    ╚═╝                                     
 </pre>
+<script>
+    function setCookie(name, value) {
+        document.cookie = name + "=" + value + ";path=/";
+    }
+    function getCookie(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+        }
+        return null;
+    }
+    function checkCookie() {
+        const nickname = getCookie("nickname");
+        if (nickname != "") {
+            document.getElementById("nicknameInput").value = nickname;
+        }
+    }
+    function updateCookie() {
+        const input = document.getElementById("nicknameInput").value;
+        setCookie("nickname", input);
+    }
+</script>
+
+<p>Please introduce your nickname, it would be used to know if you complete or not the challenge</p>
+<input type="text" id="nicknameInput" oninput="updateCookie()">
+<script>
+    checkCookie();
+</script>
     <p>010010000110010101101100011100000010000001010010011010010110001101101011001000000110111101101110001</p>
     <p>000000110100001101001011100110010000001110000011001010111001001110011011101010110100101110100001000</p>
     <p>000111010001101111001000000110011001101001011011100110010000100000011101000110100001100101001000000</p>

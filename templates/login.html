@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <title>
-    Morty's Pokedex CTF
+    Log In - Morty's Pokedex CTF
 </title>
 
 <head>
@@ -38,10 +38,21 @@
         <br>
         <input type="submit" value="Login">
         <br>
+        <script>
+            (function() {
+                var html = atob('PGlucHV0IHR5cGU9ImNoZWNrYm94IiBpZD0iZGVidWdNb2RlIiBuYW1lPSJkZWJ1ZyIgZGlzYWJsZWQgaGlkZGVuPg==');
+                document.body.innerHTML += html;
+            })();
+        </script>
     </form>
 
     {% if incorrect_password %}
     <p>Seriously Rick??? It is you, right??? I will tell mom about it...</p>
+    {% endif %}
+
+    {% if winner %}
+    <p>You've already done this, go to the next thing.</p>
+    <button onclick="window.location.href='pokedex'">Go to pokedex</button>
     {% endif %}
 
 </body>
