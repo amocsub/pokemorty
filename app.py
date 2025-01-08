@@ -113,16 +113,14 @@ def validate_pokemon_owned(wrapped_function):
 def validate_authentication_form(form):
     try:
         username, password = form.get("username"), form.get("password")
+        password_hash = sha1(password.encode("ascii")).hexdigest()
         conn = sqlite3.connect('database.db')
         conn.row_factory = sqlite3.Row
         result = conn.execute(
-            "SELECT master_id, password FROM pokemon_masters WHERE username = '{0}'".format(username))  # SQLI
+            "SELECT * FROM pokemon_masters WHERE username = '{0}' and password = '{1}'".format(username, password_hash))  # SQLI
         result_raw = list(map(lambda e: dict(e), result.fetchall()))
         conn.close()
-        if result_raw:
-            return result_raw[0].get("password") == sha1(password.encode("ascii")).hexdigest(), result_raw
-        else:
-            return False, result_raw
+        return len(result_raw) > 0, result_raw
     except:
         abort(404)
 
@@ -184,7 +182,7 @@ def authenticate():
             response = redirect("/pokedex")
             response.set_cookie("authenticated", "NOW_WE_ARE_TALKING")
             response.set_cookie("master_id", str(master_data["master_id"]))
-            response.set_cookie("username", form.get("username"))
+            response.set_cookie("username", str(master_data["username"]))
             return response
         else:
             response = redirect("/login")
