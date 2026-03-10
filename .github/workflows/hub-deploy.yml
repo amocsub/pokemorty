@@ -1,0 +1,21 @@
+# Deploy amocsub CTF hub to Fly.io on push to main
+name: Hub Deploy
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'hub/**'
+
+jobs:
+  deploy:
+    name: Deploy hub
+    runs-on: ubuntu-latest
+    concurrency: deploy-hub-group
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --config hub/fly.toml --dockerfile hub/Dockerfile
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

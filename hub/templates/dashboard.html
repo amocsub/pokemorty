@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — amocsub{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex" style="gap:1rem;">
+    {% if user.photo_url %}
+      <img src="{{ user.photo_url }}" class="avatar" style="width:48px;height:48px;">
+    {% endif %}
+    <div>
+      <h1>{{ user.display_name }}</h1>
+      <p class="text-muted" style="font-size:.85rem;">{{ user.email }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Stats row -->
+<div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); margin-bottom:2rem;">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--accent);">{{ total_points }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Total points</div>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--green);">{{ progress | length }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Challenges attempted</div>
+  </div>
+  <div class="card" style="text-align:center;">
+    {% set fully_solved = namespace(count=0) %}
+    {% for c in challenges %}
+      {% if c.id in progress and progress[c.id].stage == c.total_stages %}
+        {% set fully_solved.count = fully_solved.count + 1 %}
+      {% endif %}
+    {% endfor %}
+    <div style="font-size:2rem; font-weight:700; color:var(--purple);">{{ fully_solved.count }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Fully solved</div>
+  </div>
+</div>
+
+<!-- Challenge progress -->
+<h2 style="font-size:1.1rem; margin-bottom:1rem;">Challenge Progress</h2>
+{% if challenges %}
+<div class="grid" style="margin-bottom:2rem;">
+  {% for c in challenges %}
+  {% set p = progress.get(c.id) %}
+  {% set stage = p.stage if p else 0 %}
+  {% set pct = (stage / c.total_stages * 100) | int %}
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:.5rem;">
+      <strong>{{ c.name }}</strong>
+      <span class="text-muted" style="font-size:.8rem;">{{ stage }}/{{ c.total_stages }} stages</span>
+    </div>
+    <div style="background:var(--border); border-radius:4px; height:6px; overflow:hidden;">
+      <div style="background:{% if pct == 100 %}var(--green){% elif pct > 0 %}var(--accent){% else %}var(--border){% endif %}; width:{{ pct }}%; height:100%; border-radius:4px; transition:width .3s;"></div>
+    </div>
+    <div class="flex-between mt-1">
+      <span class="text-muted" style="font-size:.8rem;">{{ p.points_awarded if p else 0 }} / {{ c.points }} pts</span>
+      <a href="/play/{{ c.slug }}" class="btn" style="font-size:.75rem; padding:.2em .6em;">
+        {% if pct == 100 %}Revisit{% elif pct > 0 %}Continue{% else %}Start{% endif %}
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Solve history -->
+{% if solves %}
+<h2 style="font-size:1.1rem; margin-bottom:1rem;">Solve History</h2>
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Challenge</th>
+        <th>Stage</th>
+        <th>Points</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for s in solves %}
+      <tr>
+        <td><a href="/play/{{ s.slug }}">{{ s.challenge_name }}</a></td>
+        <td>{{ s.stage }} / {{ s.total_stages }}</td>
+        <td class="text-green">+{{ s.points_awarded }}</td>
+        <td class="text-muted" style="font-size:.8rem;">{{ s.solved_at[:16].replace('T', ' ') }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">No solves yet. <a href="/">Pick a challenge</a> and start hacking.</p>
+{% endif %}
+{% endblock %}

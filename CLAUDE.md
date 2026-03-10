@@ -247,6 +247,102 @@ There are **no automated tests** in this repository. The app is a demonstration 
 
 ---
 
+---
+
+## Hub Platform (`hub/` — amocsub.fly.dev)
+
+A central CTF hub was added alongside Pokemorty. It lives in `hub/` and is deployed as a separate Fly.io app.
+
+### Purpose
+- Player registration via Google Sign-In (Firebase Auth)
+- Multi-challenge support with events/campaigns
+- Leaderboard, progress tracking, admin panel
+- Pokemorty reports its solves here via webhook
+
+### Hub Stack
+- Flask + Jinja2 (same pattern as Pokemorty)
+- SQLite on a Fly.io persistent Volume (`/data/hub.db`)
+- Firebase Auth (Google Sign-In, ID token verified server-side)
+
+### Hub Structure
+```
+hub/
+├── app.py                      # All routes, DB, Firebase auth
+├── requirements.txt            # flask, gunicorn, firebase-admin, requests
+├── Dockerfile                  # Multi-stage build (same as Pokemorty)
+├── fly.toml                    # app='amocsub', mounts hub_data→/data
+└── templates/
+    ├── base.html               # Dark theme, nav, CSS
+    ├── index.html              # Challenge cards grid
+    ├── login.html              # Google Sign-In (Firebase JS SDK)
+    ├── dashboard.html          # User progress + solve history
+    ├── leaderboard.html        # Global rankings
+    ├── event.html              # Event page with leaderboard
+    ├── unlock.html             # Access code prompt (private challenges)
+    ├── error.html              # 403/404/500
+    └── admin/
+        ├── index.html          # Stats + recent activity
+        ├── challenges.html     # Create/toggle challenges, reveal webhook secrets
+        ├── events.html         # Create/toggle events, assign challenges
+        └── users.html          # User list, promote/demote admins
+```
+
+### Hub Environment Variables (set in Fly.io secrets)
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `FLASK_SECRET_KEY` | Yes | Flask session signing key |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Yes | Firebase Admin SDK service account (full JSON string) |
+| `FIREBASE_WEB_CONFIG` | Yes | Firebase JS SDK config (JSON string from Firebase console) |
+| `ADMIN_EMAILS` | Yes | Comma-separated emails that get admin role on first login |
+| `DATABASE_PATH` | No | SQLite path (default `/data/hub.db`) |
+| `POKEMORTY_WEBHOOK_SECRET` | No | Seeds Pokemorty's webhook secret on first init |
+
+### Pokemorty → Hub Integration
+
+When a player launches Pokemorty from the hub (`/play/pokemorty`), the hub:
+1. Generates a `solve_token` (random 32-byte URL-safe string)
+2. Stores it in `solve_tokens` table linked to the user
+3. Redirects to `pokemorty.fly.dev?hub_token=<token>`
+
+Pokemorty:
+1. Stores `hub_token` in a cookie on the index page
+2. On each stage completion, POSTs to `HUB_WEBHOOK_URL` with `{challenge, secret, token, stage, flag}`
+
+Hub records the solve and awards points per stage (100/100/100 for Pokemorty's 3 stages).
+
+### Pokemorty Environment Variables (add to Fly.io secrets)
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `HUB_WEBHOOK_URL` | Yes | `https://amocsub.fly.dev/api/webhook/solve` |
+| `HUB_WEBHOOK_SECRET` | Yes | Must match the webhook_secret in hub DB (see Admin > Challenges > Show) |
+
+### Hub Deployment
+
+```bash
+# First time — create the app and volume
+cd hub
+flyctl apps create amocsub
+flyctl volumes create hub_data --region cdg --size 1
+flyctl secrets set FLASK_SECRET_KEY=... FIREBASE_SERVICE_ACCOUNT_JSON='...' FIREBASE_WEB_CONFIG='...' ADMIN_EMAILS=you@gmail.com
+
+# Deploy
+flyctl deploy --remote-only --config fly.toml --dockerfile Dockerfile
+```
+
+Subsequent deploys happen automatically via `.github/workflows/hub-deploy.yml` on push to `main` (only when files under `hub/` change).
+
+### Adding a New Challenge
+
+1. Deploy the challenge app separately (or use a path on an existing app)
+2. In the hub admin panel (`/admin/challenges`), create the challenge with its URL
+3. Click "Show" to reveal the `webhook_secret`
+4. In the challenge app, set env vars `HUB_WEBHOOK_URL` and `HUB_WEBHOOK_SECRET`
+5. The challenge calls `POST https://amocsub.fly.dev/api/webhook/solve` with the payload `{challenge: <slug>, secret: <secret>, token: <hub_token from cookie>, stage: <N>, flag: <optional>}`
+
+---
+
 ## Deployment Notes
 
 - The Fly.io app uses `shared-cpu-1x` machines with min/max of 0–1 instances (auto-start/stop).

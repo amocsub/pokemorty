@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Users — Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="/admin" class="text-muted" style="font-size:.85rem;">← Admin</a>
+  <h1>Users <span class="text-muted" style="font-size:1rem; font-weight:normal;">({{ users|length }})</span></h1>
+</div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Player</th><th>Email</th><th>Points</th><th>Challenges</th><th>Joined</th><th>Role</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>
+          <div class="flex">
+            {% if u.photo_url %}<img src="{{ u.photo_url }}" class="avatar" style="width:24px;height:24px;">{% endif %}
+            {{ u.display_name }}
+          </div>
+        </td>
+        <td class="text-muted" style="font-size:.85rem;">{{ u.email }}</td>
+        <td style="color:var(--accent); font-weight:700;">{{ u.total_points }}</td>
+        <td>{{ u.challenges_solved }}</td>
+        <td class="text-muted" style="font-size:.8rem;">{{ u.created_at[:10] }}</td>
+        <td>
+          {% if u.is_admin %}
+            <span class="badge badge-admin">admin</span>
+          {% else %}
+            <span class="text-muted" style="font-size:.85rem;">player</span>
+          {% endif %}
+        </td>
+        <td>
+          <form method="post" action="/admin/users/{{ u.id }}/toggle-admin" style="display:inline;">
+            <button class="btn" style="font-size:.75rem; padding:.2em .6em;">
+              {% if u.is_admin %}Remove admin{% else %}Make admin{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

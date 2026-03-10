@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block title %}amocsub — Challenges{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <div>
+    <h1>Challenges</h1>
+    <p class="text-muted mt-1">Pick a challenge and start hacking.</p>
+  </div>
+  {% if not user %}
+    <a href="/login" class="btn btn-primary">Sign in to track progress</a>
+  {% endif %}
+</div>
+
+{% if events %}
+<section class="mt-2">
+  <h2 style="font-size:1.1rem; margin-bottom:.75rem;">Active Events</h2>
+  <div class="grid">
+    {% for e in events %}
+    <a href="/events/{{ e.slug }}" style="text-decoration:none;">
+      <div class="card" style="border-color: var(--accent); cursor:pointer;">
+        <div class="flex-between">
+          <strong>{{ e.name }}</strong>
+          <span class="badge" style="background:#0d2a43;color:var(--accent);">EVENT</span>
+        </div>
+        {% if e.description %}<p class="text-muted mt-1" style="font-size:.85rem;">{{ e.description }}</p>{% endif %}
+        {% if e.end_time %}<p class="text-muted mt-1" style="font-size:.8rem;">Ends {{ e.end_time }}</p>{% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="mt-3">
+  {% if events %}<h2 style="font-size:1.1rem; margin-bottom:.75rem;">All Challenges</h2>{% endif %}
+  <div class="grid">
+    {% for c in challenges %}
+    {% set solved = c.id in solved_ids %}
+    <div class="card" style="{% if solved %}border-color: var(--green);{% endif %} position:relative;">
+      {% if solved %}
+        <span style="position:absolute;top:.75rem;right:.75rem;font-size:.75rem;" class="text-green">✓ Solved</span>
+      {% endif %}
+
+      <div class="flex" style="margin-bottom:.5rem; flex-wrap:wrap; gap:.4rem;">
+        <span class="badge cat">{{ c.category }}</span>
+        <span class="badge diff-{{ c.difficulty }}">{{ c.difficulty }}</span>
+        {% if c.requires_code %}
+          <span class="badge" style="background:#2d1e00;color:var(--yellow);">🔒 private</span>
+        {% endif %}
+      </div>
+
+      <h3 style="font-size:1rem; margin-bottom:.35rem;">{{ c.name }}</h3>
+      <p class="text-muted" style="font-size:.85rem; margin-bottom:.75rem;">{{ c.description }}</p>
+
+      <div class="flex-between" style="margin-top:auto;">
+        <span style="font-size:.85rem; color:var(--muted);">
+          {{ c.points }} pts &middot; {{ solve_counts[c.id] }} solve{{ 's' if solve_counts[c.id] != 1 else '' }}
+        </span>
+        {% if user %}
+          <a href="/play/{{ c.slug }}" class="btn btn-primary" style="font-size:.8rem; padding:.3em .8em;">Play →</a>
+        {% else %}
+          <a href="/login" class="btn" style="font-size:.8rem; padding:.3em .8em;">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not challenges %}
+    <p class="text-muted" style="text-align:center; padding:3rem;">No challenges yet. Check back soon.</p>
+  {% endif %}
+</section>
+{% endblock %}

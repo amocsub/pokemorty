@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Events — Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <a href="/admin" class="text-muted" style="font-size:.85rem;">← Admin</a>
+  <h1>Events</h1>
+</div>
+
+<!-- Create form -->
+<div class="card" style="margin-bottom:2rem;">
+  <h2 style="font-size:1rem; margin-bottom:1rem;">New Event</h2>
+  <form method="post" action="/admin/events/new" style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem;">
+    <div class="form-group">
+      <label>Name *</label>
+      <input name="name" required placeholder="CTF Summer 2025">
+    </div>
+    <div class="form-group">
+      <label>Slug *</label>
+      <input name="slug" required placeholder="ctf-summer-2025">
+    </div>
+    <div class="form-group" style="grid-column:1/-1;">
+      <label>Description</label>
+      <textarea name="description" rows="2"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Start time (optional)</label>
+      <input name="start_time" type="datetime-local">
+    </div>
+    <div class="form-group">
+      <label>End time (optional)</label>
+      <input name="end_time" type="datetime-local">
+    </div>
+    <div class="form-group" style="grid-column:1/-1;">
+      <label>Challenges to include</label>
+      {% for c in challenges %}
+      <label style="display:flex; align-items:center; gap:.5rem; margin-top:.35rem; color:var(--text); font-size:.9rem;">
+        <input type="checkbox" name="challenges" value="{{ c.id }}">
+        {{ c.name }} ({{ c.points }} pts)
+      </label>
+      {% endfor %}
+    </div>
+    <div><button type="submit" class="btn btn-primary">Create Event</button></div>
+  </form>
+</div>
+
+<!-- Event list -->
+<div class="card">
+  <table>
+    <thead><tr><th>Name</th><th>Slug</th><th>Start</th><th>End</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for e in events %}
+      <tr>
+        <td><a href="/events/{{ e.slug }}">{{ e.name }}</a></td>
+        <td><code style="font-size:.8rem;">{{ e.slug }}</code></td>
+        <td class="text-muted" style="font-size:.8rem;">{{ e.start_time[:16].replace('T',' ') if e.start_time else '—' }}</td>
+        <td class="text-muted" style="font-size:.8rem;">{{ e.end_time[:16].replace('T',' ') if e.end_time else '—' }}</td>
+        <td>{% if e.is_active %}<span class="text-green">Active</span>{% else %}<span class="text-muted">Hidden</span>{% endif %}</td>
+        <td>
+          <form method="post" action="/admin/events/{{ e.id }}/toggle" style="display:inline;">
+            <button class="btn" style="font-size:.75rem; padding:.2em .6em;">{% if e.is_active %}Hide{% else %}Show{% endif %}</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

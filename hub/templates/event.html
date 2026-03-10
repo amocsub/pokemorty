@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block title %}{{ event.name }} — amocsub{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="flex" style="gap:.5rem; margin-bottom:.5rem;">
+    <a href="/" class="text-muted" style="font-size:.85rem;">← All challenges</a>
+  </div>
+  <h1>{{ event.name }}</h1>
+  {% if event.description %}<p class="text-muted mt-1">{{ event.description }}</p>{% endif %}
+  {% if event.start_time or event.end_time %}
+  <p class="text-muted" style="font-size:.85rem; margin-top:.5rem;">
+    {% if event.start_time %}Start: {{ event.start_time[:16].replace('T',' ') }}{% endif %}
+    {% if event.end_time %} &middot; End: {{ event.end_time[:16].replace('T',' ') }}{% endif %}
+  </p>
+  {% endif %}
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 320px; gap:1.5rem; align-items:start;">
+  <!-- Challenges -->
+  <div>
+    <h2 style="font-size:1.1rem; margin-bottom:1rem;">Challenges ({{ challenges|length }})</h2>
+    <div class="grid" style="grid-template-columns: 1fr;">
+      {% for c in challenges %}
+      {% set solved = c.id in solved_ids %}
+      <div class="card" style="{% if solved %}border-color:var(--green);{% endif %}">
+        <div class="flex-between">
+          <div class="flex" style="gap:.4rem; flex-wrap:wrap;">
+            <span class="badge cat">{{ c.category }}</span>
+            <span class="badge diff-{{ c.difficulty }}">{{ c.difficulty }}</span>
+            <strong>{{ c.name }}</strong>
+          </div>
+          <div class="flex">
+            <span class="text-muted" style="font-size:.85rem;">{{ c.points }} pts</span>
+            {% if solved %}
+              <span class="text-green">✓</span>
+            {% elif user %}
+              <a href="/play/{{ c.slug }}" class="btn btn-primary" style="font-size:.8rem; padding:.3em .8em;">Play →</a>
+            {% else %}
+              <a href="/login" class="btn" style="font-size:.8rem; padding:.3em .8em;">Sign in</a>
+            {% endif %}
+          </div>
+        </div>
+        {% if c.description %}<p class="text-muted mt-1" style="font-size:.85rem;">{{ c.description }}</p>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Event leaderboard -->
+  <div>
+    <h2 style="font-size:1.1rem; margin-bottom:1rem;">Event Leaderboard</h2>
+    <div class="card">
+      {% if leaderboard %}
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th>Pts</th></tr></thead>
+        <tbody>
+          {% for r in leaderboard %}
+          <tr>
+            <td style="font-weight:700; color:
+              {%- if loop.index == 1 %}#ffd700
+              {%- elif loop.index == 2 %}#c0c0c0
+              {%- elif loop.index == 3 %}#cd7f32
+              {%- else %}var(--muted){% endif -%}">
+              {{ loop.index }}
+            </td>
+            <td>
+              <div class="flex">
+                {% if r.photo_url %}<img src="{{ r.photo_url }}" class="avatar" style="width:20px;height:20px;">{% endif %}
+                <span style="font-size:.85rem;">{{ r.display_name }}</span>
+              </div>
+            </td>
+            <td style="color:var(--accent); font-weight:700;">{{ r.points }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-muted" style="font-size:.85rem; text-align:center; padding:1rem;">No solves yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

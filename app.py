@@ -8,7 +8,29 @@ import sqlite3
 import base64
 from io import BytesIO
 from hashlib import sha1
-from requests import get
+from requests import get, post as http_post
+
+
+# ── Hub integration ────────────────────────────────────────────────────────────
+# Reports player progress to the amocsub hub. Requires HUB_WEBHOOK_URL and
+# HUB_WEBHOOK_SECRET env vars. Silently no-ops if not configured.
+
+def notify_hub(stage, flag=""):
+    hub_url = getenv("HUB_WEBHOOK_URL", "")
+    hub_secret = getenv("HUB_WEBHOOK_SECRET", "")
+    hub_token = request.cookies.get("hub_token", "")
+    if not hub_url or not hub_secret or not hub_token:
+        return
+    try:
+        http_post(hub_url, json={
+            "challenge": "pokemorty",
+            "secret": hub_secret,
+            "token": hub_token,
+            "stage": stage,
+            "flag": flag,
+        }, timeout=2)
+    except Exception:
+        pass
 
 # -------------------------- #
 #       INITIALIZE DB
@@ -142,6 +164,7 @@ def get_flag():
         form = request.form
         if form and form.get("01100110011011000110000101100111"):
             if form.get("01100110011011000110000101100111") == "FLAG{I_LOVE_POKEMON}":
+                notify_hub(stage=3, flag="FLAG{I_LOVE_POKEMON}")
                 response = redirect("/you_have_found_the_flag")
                 response.set_cookie("flag", "FLAG{I_LOVE_POKEMON}")
                 return response
@@ -159,6 +182,7 @@ def challenge_validation():
         form = request.form
         if form and form.get("passcode"):
             if str(form["passcode"]).upper() == "PIKACHU":
+                notify_hub(stage=1)
                 response = redirect("/login")
                 response.set_cookie("challenge", "YEAH")
                 return response
@@ -178,6 +202,7 @@ def authenticate():
             return redirect("/login")
         valid_user, result_raw = validate_authentication_form(form)
         if valid_user:
+            notify_hub(stage=2)
             master_data = dict(result_raw[0])
             response = redirect("/pokedex")
             response.set_cookie("authenticated", "NOW_WE_ARE_TALKING")
@@ -236,6 +261,10 @@ def index():
     try:
         response = make_response(render_template(
             "index.html", fail=request.cookies.get("status") == "fail"))
+        # Store hub_token from query param so subsequent stage reports work
+        hub_token = request.args.get("hub_token", "")
+        if hub_token:
+            response.set_cookie("hub_token", hub_token, httponly=True, samesite="Lax")
         return response
     except:
         abort(404)

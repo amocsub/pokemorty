@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Admin — amocsub{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <h1>Admin Dashboard</h1>
+  <div class="flex">
+    <a href="/admin/challenges" class="btn">Challenges</a>
+    <a href="/admin/events" class="btn">Events</a>
+    <a href="/admin/users" class="btn">Users</a>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="grid" style="grid-template-columns: repeat(4,1fr); margin-bottom:2rem;">
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--accent);">{{ stats.users }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Users</div>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--purple);">{{ stats.challenges }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Challenges</div>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--green);">{{ stats.solves }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Solves</div>
+  </div>
+  <div class="card" style="text-align:center;">
+    <div style="font-size:2rem; font-weight:700; color:var(--yellow);">{{ stats.events }}</div>
+    <div class="text-muted" style="font-size:.85rem;">Events</div>
+  </div>
+</div>
+
+<!-- Recent activity -->
+<h2 style="font-size:1.1rem; margin-bottom:1rem;">Recent Solves</h2>
+<div class="card">
+  {% if recent_solves %}
+  <table>
+    <thead>
+      <tr><th>Time</th><th>Player</th><th>Challenge</th><th>Stage</th><th>Points</th></tr>
+    </thead>
+    <tbody>
+      {% for s in recent_solves %}
+      <tr>
+        <td class="text-muted" style="font-size:.8rem;">{{ s.solved_at[:16].replace('T',' ') }}</td>
+        <td>{{ s.display_name }}</td>
+        <td>{{ s.challenge_name }}</td>
+        <td>{{ s.stage }} / {{ s.total_stages }}</td>
+        <td class="text-green">+{{ s.points_awarded }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="text-muted" style="text-align:center; padding:1.5rem;">No solves yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard — amocsub{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Leaderboard</h1>
+  <p class="text-muted mt-1">Global rankings across all challenges.</p>
+</div>
+
+{% if rankings %}
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Challenges</th>
+        <th>Points</th>
+        <th>Last solve</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rankings %}
+      <tr {% if user and user.display_name == r.display_name %}style="background:#1c2d1c;"{% endif %}>
+        <td style="font-weight:700; color:
+          {%- if loop.index == 1 %}#ffd700
+          {%- elif loop.index == 2 %}#c0c0c0
+          {%- elif loop.index == 3 %}#cd7f32
+          {%- else %}var(--muted){% endif -%}">
+          {{ loop.index }}
+        </td>
+        <td>
+          <div class="flex">
+            {% if r.photo_url %}
+              <img src="{{ r.photo_url }}" class="avatar" style="width:24px;height:24px;">
+            {% endif %}
+            {{ r.display_name }}
+          </div>
+        </td>
+        <td>{{ r.challenges_solved }}</td>
+        <td style="font-weight:700; color:var(--accent);">{{ r.total_points }}</td>
+        <td class="text-muted" style="font-size:.8rem;">{{ r.last_solve[:16].replace('T',' ') if r.last_solve else '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted" style="text-align:center; padding:3rem;">No solves yet. Be the first!</p>
+{% endif %}
+{% endblock %}

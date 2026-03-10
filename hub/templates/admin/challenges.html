@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Challenges — Admin{% endblock %}
+
+{% block content %}
+<div class="page-header flex-between">
+  <div><a href="/admin" class="text-muted" style="font-size:.85rem;">← Admin</a><h1>Challenges</h1></div>
+</div>
+
+<!-- Create form -->
+<div class="card" style="margin-bottom:2rem;">
+  <h2 style="font-size:1rem; margin-bottom:1rem;">New Challenge</h2>
+  <form method="post" action="/admin/challenges/new" style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem;">
+    <div class="form-group">
+      <label>Name *</label>
+      <input name="name" required placeholder="Pokemorty">
+    </div>
+    <div class="form-group">
+      <label>Slug * (URL path)</label>
+      <input name="slug" required placeholder="pokemorty">
+    </div>
+    <div class="form-group" style="grid-column:1/-1;">
+      <label>Description</label>
+      <textarea name="description" rows="2" placeholder="Short description shown on the challenge card."></textarea>
+    </div>
+    <div class="form-group">
+      <label>URL (external link)</label>
+      <input name="url" placeholder="https://mychallenge.fly.dev">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select name="category">
+        <option>web</option><option>crypto</option><option>forensics</option>
+        <option>osint</option><option>pwn</option><option>misc</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Difficulty</label>
+      <select name="difficulty">
+        <option>easy</option><option selected>medium</option><option>hard</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Points</label>
+      <input name="points" type="number" value="100" min="1">
+    </div>
+    <div class="form-group">
+      <label>Total stages (1 = single-flag)</label>
+      <input name="total_stages" type="number" value="1" min="1">
+    </div>
+    <div class="form-group" style="grid-column:1/-1;">
+      <label>Access code (leave blank for public)</label>
+      <input name="access_code" type="password" placeholder="Secret code for private challenges">
+    </div>
+    <div style="grid-column:1/-1;">
+      <button type="submit" class="btn btn-primary">Create Challenge</button>
+    </div>
+  </form>
+</div>
+
+<!-- Challenge list -->
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Slug</th><th>Points</th><th>Stages</th><th>Status</th><th>Webhook secret</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for c in challenges %}
+      <tr>
+        <td><strong>{{ c.name }}</strong><br><span class="text-muted" style="font-size:.8rem;">{{ c.category }} / {{ c.difficulty }}</span></td>
+        <td><code style="font-size:.8rem;">{{ c.slug }}</code></td>
+        <td>{{ c.points }}</td>
+        <td>{{ c.total_stages }}</td>
+        <td>
+          {% if c.is_active %}
+            <span class="text-green">Active</span>
+          {% else %}
+            <span class="text-muted">Hidden</span>
+          {% endif %}
+        </td>
+        <td>
+          <button onclick="revealSecret('{{ c.id }}')" class="btn" style="font-size:.75rem; padding:.2em .6em;">Show</button>
+          <code id="secret-{{ c.id }}" style="display:none; font-size:.75rem; word-break:break-all;"></code>
+        </td>
+        <td>
+          <form method="post" action="/admin/challenges/{{ c.id }}/toggle" style="display:inline;">
+            <button class="btn" style="font-size:.75rem; padding:.2em .6em;">
+              {% if c.is_active %}Hide{% else %}Show{% endif %}
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+async function revealSecret(id) {
+  const res = await fetch(`/admin/challenges/${id}/secret`);
+  const data = await res.json();
+  const el = document.getElementById(`secret-${id}`);
+  el.textContent = data.webhook_secret;
+  el.style.display = 'inline';
+}
+</script>
+{% endblock %}

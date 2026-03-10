@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}amocsub{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d1117;
+      --surface:  #161b22;
+      --border:   #30363d;
+      --text:     #c9d1d9;
+      --muted:    #8b949e;
+      --accent:   #58a6ff;
+      --green:    #3fb950;
+      --yellow:   #d29922;
+      --red:      #f85149;
+      --purple:   #bc8cff;
+      --font:     -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; gap: 1.5rem; height: 56px; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--text); letter-spacing: .04em; }
+    .nav-brand span { color: var(--accent); }
+    .nav-links { display: flex; gap: 1.25rem; margin-left: auto; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: .9rem; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-links a.active { color: var(--accent); }
+    .avatar { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); vertical-align: middle; }
+    .badge { display: inline-block; padding: .15em .5em; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+    .badge-admin { background: #4c2f6e; color: var(--purple); }
+
+    /* Main */
+    main { flex: 1; padding: 2rem 1.5rem; max-width: 1100px; width: 100%; margin: 0 auto; }
+
+    /* Cards */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+    /* Buttons */
+    .btn { display: inline-block; padding: .45em 1.1em; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: .9rem; cursor: pointer; transition: background .15s; }
+    .btn:hover { background: #21262d; text-decoration: none; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #000; font-weight: 600; }
+    .btn-primary:hover { background: #79b8ff; }
+    .btn-danger { background: var(--red); border-color: var(--red); color: #fff; font-weight: 600; }
+
+    /* Difficulty badges */
+    .diff-easy   { background: #0a2d0a; color: var(--green); }
+    .diff-medium { background: #2d1e00; color: var(--yellow); }
+    .diff-hard   { background: #2d0a0a; color: var(--red); }
+
+    /* Category badges */
+    .cat { background: #0d2a43; color: var(--accent); }
+
+    /* Table */
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th { text-align: left; padding: .6rem 1rem; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    td { padding: .6rem 1rem; border-bottom: 1px solid #21262d; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #1c2128; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1rem; }
+    label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
+    input, select, textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .5em .75em; color: var(--text); font-size: .9rem; font-family: var(--font); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+    /* Misc */
+    .page-header { margin-bottom: 1.5rem; }
+    .page-header h1 { font-size: 1.5rem; }
+    .text-muted { color: var(--muted); }
+    .text-green { color: var(--green); }
+    .text-red { color: var(--red); }
+    .text-yellow { color: var(--yellow); }
+    .mt-1 { margin-top: .5rem; }
+    .mt-2 { margin-top: 1rem; }
+    .mt-3 { margin-top: 1.5rem; }
+    .flex { display: flex; align-items: center; gap: .75rem; }
+    .flex-between { display: flex; align-items: center; justify-content: space-between; }
+
+    footer { border-top: 1px solid var(--border); text-align: center; padding: 1rem; font-size: .8rem; color: var(--muted); }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="/">amo<span>csub</span></a>
+  <div class="nav-links">
+    <a href="/" {% if request.path == '/' %}class="active"{% endif %}>Challenges</a>
+    <a href="/leaderboard" {% if request.path == '/leaderboard' %}class="active"{% endif %}>Leaderboard</a>
+    {% if user %}
+      <a href="/dashboard" {% if request.path == '/dashboard' %}class="active"{% endif %}>Dashboard</a>
+      {% if user.is_admin %}<a href="/admin" {% if request.path.startswith('/admin') %}class="active"{% endif %}>Admin</a>{% endif %}
+      <a href="/logout" style="color:var(--muted)">
+        {% if user.photo_url %}<img class="avatar" src="{{ user.photo_url }}" alt="">{% endif %}
+        {{ user.display_name }}
+      </a>
+    {% else %}
+      <a href="/login" class="btn btn-primary">Sign in</a>
+    {% endif %}
+  </div>
+</nav>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer>amocsub &mdash; CTF platform &mdash; <a href="https://github.com">GitHub</a></footer>
+</body>
+</html>

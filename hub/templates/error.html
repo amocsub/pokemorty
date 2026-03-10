@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}{{ code }} — amocsub{% endblock %}
+
+{% block content %}
+<div style="text-align:center; padding:5rem 1rem;">
+  <div style="font-size:5rem; font-weight:700; color:var(--border); font-family:monospace;">{{ code }}</div>
+  <p style="font-size:1.1rem; margin:.75rem 0;">{{ message }}</p>
+  <a href="/" class="btn btn-primary mt-2">Go home</a>
+</div>
+{% endblock %}
